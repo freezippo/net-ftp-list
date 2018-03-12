@@ -2,7 +2,7 @@
 class Net::FTP::List::Entry
   include Comparable
 
-  ALLOWED_ATTRIBUTES = [:raw, :basename, :dir, :file, :symlink, :mtime, :filesize, :device, :server_type, :symlink_destination] #:nodoc:
+  ALLOWED_ATTRIBUTES = [:raw, :basename, :dir, :file, :symlink, :mtime, :filesize, :device, :server_type, :symlink_destination, :user, :group, :perms] #:nodoc:
 
   # Create a new entry object. The additional argument is the list of metadata keys
   # that can be used on the object. By default just takes and set the raw list entry.
@@ -101,4 +101,17 @@ class Net::FTP::List::Entry
   def unknown?
     @dir.nil? && @file.nil? && @symlink.nil? && @device.nil?
   end
+
+  def user
+    @user || ''
+  end
+
+  def group
+    @user || ''
+  end
+
+  def perms
+    @perms || '000'
+  end
+
 end

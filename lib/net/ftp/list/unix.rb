@@ -44,12 +44,12 @@ class Net::FTP::List::Unix < Net::FTP::List::Parser
 
     # TODO: Permissions, users, groups, date/time.
     filesize = match[18].to_i
-    
+
     mtime_month_and_day = match[19]
     mtime_time_or_year = match[20]
 
     # Unix mtimes specify a 4 digit year unless the data is within the past 180
-    # days or so. Future dates always specify a 4 digit year. 
+    # days or so. Future dates always specify a 4 digit year.
     # If the parsed date, with today's year, could be in the future, then
     # the date must be for the previous year
     mtime_string = if mtime_time_or_year.match(/^[0-9]{1,2}:[0-9]{2}$/)
@@ -63,6 +63,10 @@ class Net::FTP::List::Unix < Net::FTP::List::Parser
     end
 
     mtime = Time.parse(mtime_string)
+
+    user = match[16].strip
+    group = match[17].strip
+    perms = match[2].strip
 
     basename = match[21].strip
 
@@ -84,7 +88,22 @@ class Net::FTP::List::Unix < Net::FTP::List::Parser
       :filesize => filesize,
       :basename => basename,
       :symlink_destination => symlink_destination,
-      :mtime => mtime
+      :mtime => mtime,
+      :user => user,
+      :group => group,
+      :perms => convert_perms(perms)
     )
   end
+private
+  def self.convert_perms(perm)
+    perms_keys={'r' => 4, 'w' => 2, 'x' => 1, '-' => 0}
+    str=''
+
+    perm.split('').each_slice(3).to_a.each do |item|
+      str += "#{item.inject(0){|sum,x| sum + perms_keys[x]}}"
+    end
+
+    str
+  end
+
 end
